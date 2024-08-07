@@ -2,6 +2,7 @@ import os
 import pytest
 from src.logging import setup_logger
 
+
 @pytest.fixture
 def logger():
     log_file = "test.log"
@@ -9,6 +10,7 @@ def logger():
     yield logger
     if os.path.exists(log_file):
         os.remove(log_file)
+
 
 def test_logging(logger):
     log_file = "test.log"
