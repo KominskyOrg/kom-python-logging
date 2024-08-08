@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="kom_pythong_logging",
-    version="0.1",
+    name="kom_python_logging",
+    version="0.2",
     packages=find_packages(),
     install_requires=[],
     author="Jared Kominsky",
