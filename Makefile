@@ -65,5 +65,5 @@ build:
 
 # Release the package to GitHub Packages
 .PHONY: release
-release: build
+release: clean build
 	$(PIPENV) run twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
