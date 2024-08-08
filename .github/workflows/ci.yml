@@ -149,4 +149,4 @@ jobs:
       run: pipenv run make release
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.GH_TOKEN }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
