@@ -1,4 +1,5 @@
 import os
+import tempfile
 import pytest
 import logging
 from src.logging import setup_logger, set_logging_level
@@ -111,12 +112,13 @@ def test_missing_parameters():
 
 
 def test_invalid_log_file_permission():
-    log_file = "/root/test.log"
-    with pytest.raises(FileNotFoundError):
-        setup_logger("test_logger_permission", log_file)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_file = os.path.join(tmpdir, "test.log")
+        os.chmod(tmpdir, 0o400)  # Set directory to read-only
+        with pytest.raises(PermissionError):
+            setup_logger("test_logger_permission", log_file)
 
-    if os.path.exists(log_file):
-        os.remove(log_file)
+    # Cleanup not needed as tempfile handles it
 
 
 def test_no_log_destination():
