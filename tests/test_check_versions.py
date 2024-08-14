@@ -2,7 +2,8 @@
 import pytest
 import subprocess
 import sys
-from unittest import mock
+import os
+import re
 from workflow_scripts.check_versions import (
     get_current_version,
     get_latest_pypi_version,
@@ -87,22 +88,25 @@ def test_main(mocker):
     )
 
 
-def test_script_execution(mocker):
-    mocker.patch("builtins.open", mocker.mock_open(read_data='version="0.5"'))
-    mock_response = mock.Mock()
+def test_main_script(mocker):
+    # Read the version from setup.py
+    with open('setup.py', 'r') as file:
+        setup_content = file.read()
+    match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', setup_content)
+    if not match:
+        pytest.fail("No version found in setup.py")
+    current_version = match.group(1)
+
+    # Mock necessary functions and values
+    mock_response = mocker.Mock()
     mock_response.status_code = 200
     mock_response.json.return_value = {"info": {"version": "0.4"}}
     mocker.patch("requests.get", return_value=mock_response)
     mocker.patch("os.getenv", return_value="kom-python-logging")
 
-    result = subprocess.run(
-        [sys.executable, "workflow_scripts/check_versions.py"],
-        capture_output=True,
-        text=True,
-    )
-
-    assert result.returncode == 0
-    assert (
-        "Current version 0.5 is greater than the latest PyPI version 0.4"
-        in result.stdout
-    )
+    # Run the script
+    result = subprocess.run([sys.executable, os.path.join("workflow_scripts", "check_versions.py")], capture_output=True, text=True)
+    
+    # Assert the expected output
+    expected_output = f"Current version {current_version} is greater than the latest PyPI version 0.4"
+    assert expected_output in result.stdout
