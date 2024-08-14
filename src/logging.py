@@ -1,16 +1,39 @@
 # src/logging.py
 import logging
+import json
+
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            "time": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "name": record.name,
+            "filename": record.pathname,
+            "funcName": record.funcName,
+            "lineno": record.lineno,
+        }
+        return json.dumps(log_record)
 
 
 def setup_logger(
-    name: str, log_file: str = None, level: int = logging.INFO, console: bool = False
+    name: str,
+    log_file: str = None,
+    level: int = logging.INFO,
+    console: bool = False,
+    json_format: bool = False,
 ):
     if not log_file and not console:
         raise ValueError(
             "At least one of log_file or console must be provided for logging."
         )
 
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+    formatter = (
+        JSONFormatter()
+        if json_format
+        else logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+    )
 
     handlers = []
 
