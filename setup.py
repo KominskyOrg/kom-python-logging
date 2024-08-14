@@ -6,7 +6,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8') + '\n\n' + (
 
 setup(
     name="kom-python-logging",
-    version="0.5",
+    version="0.6",
     packages=find_packages(),
     install_requires=[],
     author="Jared Kominsky",
