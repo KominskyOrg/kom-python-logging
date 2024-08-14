@@ -23,6 +23,7 @@ help:
 	@echo "  format              Format code (black)"
 	@echo "  build               Build the package"
 	@echo "  release             Release the package to GitHub Packages"
+	@echo "  version_check       Run the version check script"
 	@echo ""
 
 # Install package and dependencies
@@ -66,3 +67,8 @@ build:
 .PHONY: release
 release: clean build
 	$(PIPENV) run twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+
+# Run the version check script
+.PHONY: version_check
+version_check:
+	$(PYTHON) workflow_scripts/check_versions.py

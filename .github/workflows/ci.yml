@@ -10,11 +10,34 @@ on:
 
 env:
   PYTHON_VERSION: "3.12"
-  PACKAGE_NAME: "kom-python-logging"
+  PACKAGE_NAME: "your_package_name"
 
 jobs:
+  version_check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install pipenv
+      run: pip install pipenv
+
+    - name: Install dependencies
+      run: pipenv install --dev
+
+    - name: Run version check
+      run: make version_check
+
   build:
     runs-on: ubuntu-latest
+    needs: version_check
+    if: github.event_name != 'pull_request'
 
     steps:
     - name: Checkout repository
@@ -55,43 +78,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-build-
 
-  version_check:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'pull_request'
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install pipenv
-      run: pip install pipenv
-
-    - name: Cache pipenv
-      id: pipenv-cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.local/share/virtualenvs
-        key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pipenv-
-
-    - name: Install dependencies
-      run: pipenv install --dev
-      if: steps.pipenv-cache.outputs.cache-hit != 'true'
-
-    - name: Run version check
-      run: python workflow_scripts/check_version.py
-
   lint_and_clean:
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request'
 
     steps:
     - name: Checkout repository
@@ -159,11 +148,11 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: ${{ github.event_name == 'pull_request' }}
-        files: "./.coverage"
+        files: "./coverage.xml"
 
   release:
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, lint_and_clean, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
