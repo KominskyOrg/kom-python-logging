@@ -90,7 +90,7 @@ def test_main(mocker):
 
 def test_main_script(mocker):
     # Read the version from setup.py
-    with open('setup.py', 'r') as file:
+    with open("setup.py", "r") as file:
         setup_content = file.read()
     match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', setup_content)
     if not match:
@@ -105,8 +105,14 @@ def test_main_script(mocker):
     mocker.patch("os.getenv", return_value="kom-python-logging")
 
     # Run the script
-    result = subprocess.run([sys.executable, os.path.join("workflow_scripts", "check_versions.py")], capture_output=True, text=True)
-    
+    result = subprocess.run(
+        [sys.executable, os.path.join("workflow_scripts", "check_versions.py")],
+        capture_output=True,
+        text=True,
+    )
+
     # Assert the expected output
-    expected_output = f"Current version {current_version} is greater than the latest PyPI version 0.4"
+    expected_output = (
+        f"Current version {current_version} is greater than the latest PyPI version 0.4"
+    )
     assert expected_output in result.stdout

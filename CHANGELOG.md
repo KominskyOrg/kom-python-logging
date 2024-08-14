@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.6] - 2024-08-13
+### Added
+- get_current_version function to read the version number from setup.py.
+- get_latest_pypi_version function to fetch the latest version of the package from PyPI.
+- compare_versions function to compare the current version with the latest PyPI version.
+- main function to orchestrate the version check.
+- Test cases for get_current_version, get_latest_pypi_version, compare_versions, and the main execution block.
+- Test case using subprocess to ensure the if __name__ == "__main__": main() block is executed and covers the script entry point.
+
+### Changed
+- Refactored workflow_scripts/check_versions.py to include the main execution logic in the main function for better testability.
+
+### Fixed
+- Ensured tests do not depend on the actual contents of setup.py by mocking the version number.
+
 ## [0.5] - 2024-08-13
 ### Added
 - Support for structured logging (JSON-formatted logs) to improve log readability and facilitate log parsing by log management systems like ELK stack or Splunk.
