@@ -86,7 +86,7 @@ jobs:
       if: steps.pipenv-cache.outputs.cache-hit != 'true'
 
     - name: Run version check
-      run: python scripts/check_version.py
+      run: python workflow_scripts/check_version.py
 
   lint_and_clean:
     runs-on: ubuntu-latest
