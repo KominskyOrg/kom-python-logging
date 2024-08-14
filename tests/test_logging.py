@@ -1,4 +1,5 @@
 import os
+import tempfile
 import pytest
 import logging
 from src.logging import setup_logger, set_logging_level
@@ -70,3 +71,56 @@ def test_logger_levels(level_name, log_message, is_in_log):
 
     if os.path.exists(log_file):
         os.remove(log_file)
+
+
+def test_console_logging(caplog):
+    with caplog.at_level(logging.INFO):
+        logger = setup_logger("console_logger", None, logging.INFO, console=True)
+        logger.info("Console log message")
+        assert "Console log message" in caplog.text
+
+
+def test_file_and_console_logging(caplog):
+    log_file = "test_file_console.log"
+    with caplog.at_level(logging.INFO):
+        logger = setup_logger(
+            "file_console_logger", log_file, logging.INFO, console=True
+        )
+        logger.info("File and console log message")
+        assert "File and console log message" in caplog.text
+        with open(log_file, "r") as f:
+            content = f.read()
+            assert "File and console log message" in content
+
+    if os.path.exists(log_file):
+        os.remove(log_file)
+
+
+def test_invalid_log_level():
+    with pytest.raises(ValueError):
+        set_logging_level(None)
+
+
+def test_invalid_log_file_path():
+    with pytest.raises(FileNotFoundError):
+        setup_logger("test_logger_invalid_path", "/invalid/path/test.log")
+
+
+def test_missing_parameters():
+    with pytest.raises(TypeError):
+        setup_logger()  # Missing required parameters
+
+
+def test_invalid_log_file_permission():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_file = os.path.join(tmpdir, "test.log")
+        os.chmod(tmpdir, 0o400)  # Set directory to read-only
+        with pytest.raises(PermissionError):
+            setup_logger("test_logger_permission", log_file)
+
+    # Cleanup not needed as tempfile handles it
+
+
+def test_no_log_destination():
+    with pytest.raises(ValueError):
+        setup_logger("no_destination_logger", None, logging.INFO, console=False)

@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  PYTHON_VERSION: "3.12"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install pipenv
       run: pip install pipenv
@@ -71,7 +74,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install pipenv
       run: pip install pipenv
@@ -105,7 +108,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install pipenv
       run: pip install pipenv
@@ -115,6 +118,13 @@ jobs:
 
     - name: Run tests
       run: pipenv run make test
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: ${{ github.event_name == 'pull_request' }}
+        files: "./.coverage"
 
   release:
     runs-on: ubuntu-latest
@@ -137,7 +147,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install pipenv
       run: pip install pipenv

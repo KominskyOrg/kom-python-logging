@@ -1,20 +1,41 @@
+# src/logging.py
 import logging
 
 
-def setup_logger(name: str, log_file: str, level: int = logging.INFO):
+def setup_logger(
+    name: str, log_file: str = None, level: int = logging.INFO, console: bool = False
+):
+    if not log_file and not console:
+        raise ValueError(
+            "At least one of log_file or console must be provided for logging."
+        )
+
     formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
 
-    handler = logging.FileHandler(log_file)
-    handler.setFormatter(formatter)
+    handlers = []
+
+    if log_file:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        handlers.append(file_handler)
+
+    if console:
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        handlers.append(console_handler)
 
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    logger.addHandler(handler)
+
+    for handler in handlers:
+        logger.addHandler(handler)
 
     return logger
 
 
 def set_logging_level(level_name: str) -> int:
+    if level_name is None:
+        raise ValueError("Logging level name cannot be None")
     level_name = level_name.upper()
     level = {
         "DEBUG": logging.DEBUG,
