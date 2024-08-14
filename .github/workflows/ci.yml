@@ -10,7 +10,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.12"
-  PACKAGE_NAME: "your_package_name"
+  PACKAGE_NAME: "kom-python-logging"
 
 jobs:
   version_check:
