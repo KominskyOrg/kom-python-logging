@@ -1,7 +1,6 @@
 # Makefile for kom_python_logging
 
 # Variables
-PACKAGE_NAME = kom_python_logging
 PYTHON = pipenv run python3
 PIPENV = pipenv
 TEST_DIR = tests
