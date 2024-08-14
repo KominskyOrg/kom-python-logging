@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5] - 2024-08-13
+### Added
+- Support for structured logging (JSON-formatted logs) to improve log readability and facilitate log parsing by log management systems like ELK stack or Splunk.
+- JSONFormatter class to format log records as JSON.
+- json_format parameter in setup_logger function to enable JSON formatting.
+- Unit tests to validate JSON formatted logs and ensure they include all required fields.
+- Test cases for JSON formatted logs to check for correct fields and content.
+
+### Changed
+- setup_logger function updated to accept json_format parameter for structured logging.
+
 ## [0.4] - 2024-08-07
 ### Added
 - Configuration for Black code formatter to align with Flake8 linting styles.
