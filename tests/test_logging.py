@@ -2,6 +2,7 @@ import os
 import tempfile
 import pytest
 import logging
+import json
 from src.logging import setup_logger, set_logging_level
 
 
@@ -124,3 +125,46 @@ def test_invalid_log_file_permission():
 def test_no_log_destination():
     with pytest.raises(ValueError):
         setup_logger("no_destination_logger", None, logging.INFO, console=False)
+
+
+def test_json_logging_format():
+    log_file = "test_json.log"
+    logger = setup_logger("test_json_logger", log_file, json_format=True)
+    logger.info("Test JSON log message")
+    logger.error("Test JSON error message")
+
+    assert os.path.exists(log_file)
+    with open(log_file, "r") as f:
+        logs = f.readlines()
+
+    for log in logs:
+        log_record = json.loads(log)
+        assert "time" in log_record
+        assert "level" in log_record
+        assert "message" in log_record
+        assert "name" in log_record
+        assert "filename" in log_record
+        assert "funcName" in log_record
+        assert "lineno" in log_record
+        assert log_record["name"] == "test_json_logger"
+
+    if os.path.exists(log_file):
+        os.remove(log_file)
+
+
+def test_json_log_content():
+    log_file = "test_json_content.log"
+    test_message = "Another JSON formatted log message"
+    logger = setup_logger("test_json_content_logger", log_file, json_format=True)
+    logger.warning(test_message)
+
+    assert os.path.exists(log_file)
+    with open(log_file, "r") as f:
+        logs = f.readlines()
+
+    log_record = json.loads(logs[-1])
+    assert log_record["message"] == test_message
+    assert log_record["level"] == "WARNING"
+
+    if os.path.exists(log_file):
+        os.remove(log_file)

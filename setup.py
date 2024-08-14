@@ -5,8 +5,8 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / 'README.md').read_text(encoding='utf-8') + '\n\n' + (here / 'CHANGELOG.md').read_text(encoding='utf-8')
 
 setup(
-    name="kom_python_logging",
-    version="0.4",
+    name="kom-python-logging",
+    version="0.6",
     packages=find_packages(),
     install_requires=[],
     author="Jared Kominsky",

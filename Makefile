@@ -1,7 +1,6 @@
 # Makefile for kom_python_logging
 
 # Variables
-PACKAGE_NAME = kom_python_logging
 PYTHON = pipenv run python3
 PIPENV = pipenv
 TEST_DIR = tests
@@ -24,6 +23,7 @@ help:
 	@echo "  format              Format code (black)"
 	@echo "  build               Build the package"
 	@echo "  release             Release the package to GitHub Packages"
+	@echo "  version_check       Run the version check script"
 	@echo ""
 
 # Install package and dependencies
@@ -67,3 +67,8 @@ build:
 .PHONY: release
 release: clean build
 	$(PIPENV) run twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+
+# Run the version check script
+.PHONY: version_check
+version_check:
+	$(PYTHON) workflow_scripts/check_versions.py

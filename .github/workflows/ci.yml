@@ -10,9 +10,10 @@ on:
 
 env:
   PYTHON_VERSION: "3.12"
+  PACKAGE_NAME: "kom-python-logging"
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,6 +41,53 @@ jobs:
       run: pipenv install --dev
       if: steps.pipenv-cache.outputs.cache-hit != 'true'
 
+  version_check:
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install pipenv
+      run: pip install pipenv
+
+    - name: Restore pipenv cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+
+    - name: Run version check
+      run: pipenv run make version_check
+
+  build:
+    runs-on: ubuntu-latest
+    needs: version_check
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install pipenv
+      run: pip install pipenv
+
+    - name: Restore pipenv cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+
     - name: Build package
       run: pipenv run make build
 
@@ -57,10 +105,19 @@ jobs:
   lint_and_clean:
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'pull_request'
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install pipenv
+      run: pip install pipenv
 
     - name: Restore build cache
       uses: actions/cache@v4
@@ -71,16 +128,11 @@ jobs:
           *.egg-info
         key: ${{ runner.os }}-build-${{ github.sha }}
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Restore pipenv cache
+      uses: actions/cache@v4
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install pipenv
-      run: pip install pipenv
-
-    - name: Install dependencies
-      run: pipenv install --dev
+        path: ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
 
     - name: Run linter
       run: pipenv run make lint
@@ -96,6 +148,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install pipenv
+      run: pip install pipenv
+
     - name: Restore build cache
       uses: actions/cache@v4
       with:
@@ -105,16 +165,11 @@ jobs:
           *.egg-info
         key: ${{ runner.os }}-build-${{ github.sha }}
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Restore pipenv cache
+      uses: actions/cache@v4
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install pipenv
-      run: pip install pipenv
-
-    - name: Install dependencies
-      run: pipenv install --dev
+        path: ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
 
     - name: Run tests
       run: pipenv run make test
@@ -124,7 +179,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: ${{ github.event_name == 'pull_request' }}
-        files: "./.coverage"
+        files: "./coverage.xml"
 
   release:
     runs-on: ubuntu-latest
@@ -135,6 +190,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install pipenv
+      run: pip install pipenv
+
     - name: Restore build cache
       uses: actions/cache@v4
       with:
@@ -144,16 +207,11 @@ jobs:
           *.egg-info
         key: ${{ runner.os }}-build-${{ github.sha }}
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Restore pipenv cache
+      uses: actions/cache@v4
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install pipenv
-      run: pip install pipenv
-
-    - name: Install dependencies
-      run: pipenv install --dev
+        path: ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
 
     - name: Release package
       run: pipenv run make release
